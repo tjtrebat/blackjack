@@ -7,6 +7,7 @@ class Card:
     def __init__(self, rank, suit):
         self.rank = rank
         self.suit = suit
+        self.image = 'cards/%s.gif' % (self.suit[0].lower() + self.rank,)
 
     def __str__(self):
         return "%s of %ss" % (self.rank, self.suit)
