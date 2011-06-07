@@ -7,7 +7,14 @@ class Card:
     def __init__(self, rank, suit):
         self.rank = rank
         self.suit = suit
-        self.image = 'cards/%s.gif' % (self.suit[0].lower() + self.rank[0].lower(),)
+        self.image = self.get_card_image()
+        
+    def get_card_image(self):
+        try:
+            rank = int(self.rank)
+        except ValueError:
+            rank = self.rank[0].lower() 
+        return 'cards/%s.gif' % (self.suit[0].lower() + str(rank),)
 
     def __str__(self):
         return "%s of %ss" % (self.rank, self.suit)
@@ -30,7 +37,7 @@ class Deck:
     def __str__(self):
         return ",".join([str(card) for card in self.cards])
 
-class Hand:
+class Hand(object):
     def __init__(self):
         self.cards = []
 
@@ -39,16 +46,53 @@ class Hand:
 
     def __str__(self):
         return ",".join([str(card) for card in self.cards])
+        
+class BlackjackHand(Hand):
+    def __init__(self):
+        super(BlackjackHand, self).__init__()
+        
+    def get_total(self):
+        total = 0
+        has_ace = False
+        for card in self.cards:     
+            try:
+                value = int(card.rank)
+            except ValueError:
+                if card.rank == "Ace":
+                    value = 11
+                    has_ace = True
+                else:
+                    value = 10
+            total += value
+            if total > 21 and has_ace:
+                total -= 10
+                has_ace = False
+        return total
+            
+    def is_bust(self):
+        if self.get_total() > 21:
+            return True
+        return False
 
 class Blackjack:
     def __init__(self, root):
         self.root = root
         self.deck = Deck()
-        self.my_cards = Hand()
-        self.dealer_cards = Hand()
-        self.add_background()
+        self.table = self.add_background()
+        self.my_cards = BlackjackHand()
+        self.dealer_cards = BlackjackHand()
         self.new_game()
         print self
+        
+    def new_game(self):
+        #self.my_frame.destroy()
+        for i in range(2):
+            my_card = self.deck.cards.pop()
+            self.deal_card(PhotoImage(file=my_card.image))
+            self.my_cards.add(my_card)
+            dealer_card = self.deck.cards.pop()
+            self.deal_card(PhotoImage(file=dealer_card.image))
+            self.dealer_cards.add(dealer_card)
         
     def add_background(self):
         self.root.title("Blackjack")
@@ -57,15 +101,16 @@ class Blackjack:
         label = Label(self.root, image=background)
         label.photo = background
         label.pack(side='top', fill='both', expand='yes')
+        return label
         
-    def new_game(self):
-        for i in range(2):
-            self.my_cards.add(self.deck.cards.pop())
-            self.dealer_cards.add(self.deck.cards.pop())
+    def deal_card(self, image, **kwargs):
+        card_label = Label(self.table, image=image)
+        card_label.photo = image
+        card_label.pack(**kwargs)        
 
     def __str__(self):
-        s = "My Hand: " + str(self.my_cards)
-        s += "\nDealer Hand: " + str(self.dealer_cards)
+        s = "My Hand (%s): %s" % (str(self.my_cards.get_total()), str(self.my_cards))
+        s += "\nDealer Hand (%s): %s" % (str(self.dealer_cards.get_total()), str(self.dealer_cards))
         return s
 
 if __name__ == "__main__":
