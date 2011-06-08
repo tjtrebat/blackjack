@@ -35,13 +35,27 @@ class Blackjack:
         self.root = root
         self.deck = deck
         self.images = images
+
+    def add_menu(self):
+        menu = Menu(self.root)
+        file_menu = Menu(menu, tearoff=0)
+        file_menu.add_command(label="New Game", command=self.new_game)
+        menu.add_cascade(label="File", menu=file_menu)
+        self.root.config(menu=menu)
+
+    def new_game(self):
         self.my_cards = BlackjackHand()
         self.dealer_cards = BlackjackHand()
-        
-    def new_game(self):
+        self.my_frame.destroy()
+        self.dealer_frame.destroy()
+        self.my_frame = Frame(self.table)
+        self.my_frame.pack(side='bottom')
+        self.dealer_frame = Frame(self.table)
+        self.dealer_frame.pack(side='top')
         for i in range(2):
             self.deal_card(self.my_frame, self.my_cards)
             self.deal_card(self.dealer_frame, self.dealer_cards)
+        print self
         
     def add_table(self):
         self.root.title("Blackjack")
@@ -64,8 +78,8 @@ class Blackjack:
         hand.add(card)
 
     def __str__(self):
-        s = "Dealer Hand (%s): %s" % (str(self.dealer_cards.get_total()), str(self.dealer_cards))
-        s += "\nMy Hand (%s): %s" % (str(self.my_cards.get_total()), str(self.my_cards))
+        s = "Dealer Hand (%s): %s\n" % (str(self.dealer_cards.get_total()), str(self.dealer_cards))
+        s += "My Hand (%s): %s\n" % (str(self.my_cards.get_total()), str(self.my_cards))
         return s
 
 if __name__ == "__main__":
@@ -75,6 +89,6 @@ if __name__ == "__main__":
     images = [PhotoImage(file=card.get_image()) for card in deck.cards]
     blackjack = Blackjack(root, deck, images)
     blackjack.add_table()
+    blackjack.add_menu()
     blackjack.new_game()
-    print blackjack
     root.mainloop()
