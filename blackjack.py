@@ -31,10 +31,11 @@ class BlackjackHand(Hand):
         return False
 
 class Blackjack:
-    def __init__(self, root, deck, images):
+    def __init__(self, root, deck, images, face_down_images):
         self.root = root
         self.deck = deck
         self.images = images
+        self.face_down_images = face_down_images
 
     def add_menu(self):
         menu = Menu(self.root)
@@ -46,15 +47,22 @@ class Blackjack:
     def new_game(self):
         self.my_cards = BlackjackHand()
         self.dealer_cards = BlackjackHand()
-        self.my_frame.destroy()
-        self.dealer_frame.destroy()
+        if hasattr(self, 'my_frame'):
+            self.my_frame.destroy()
+        if hasattr(self, 'dealer_frame'):
+            self.dealer_frame.destroy()
         self.my_frame = Frame(self.table)
         self.my_frame.pack(side='bottom')
         self.dealer_frame = Frame(self.table)
         self.dealer_frame.pack(side='top')
-        for i in range(2):
-            self.deal_card(self.my_frame, self.my_cards)
-            self.deal_card(self.dealer_frame, self.dealer_cards)
+        self.deal_card(self.my_frame, self.my_cards)
+        self.deal_card(self.dealer_frame, self.dealer_cards)
+        self.deal_card(self.my_frame, self.my_cards)
+        self.deal_card(self.dealer_frame, self.dealer_cards, face_down=True)
+        #self.dealer_cards.cards[1].label.destroy()
+        #face_down_card = Label(self.dealer_frame, image=self.images[str(self.dealer_cards.cards[1])])
+        #face_down_card.pack(side='left')
+        #self.dealer_cards.cards[1].label = face_down_card
         print self
         
     def add_table(self):
@@ -64,30 +72,33 @@ class Blackjack:
         self.table = Label(self.root, image=background)
         self.table.photo = background
         self.table.pack(side='top', fill='both', expand='yes')
-        self.my_frame = Frame(self.table)
-        self.my_frame.pack(side='bottom')
-        self.dealer_frame = Frame(self.table)
-        self.dealer_frame.pack(side='top')
         
-    def deal_card(self, frame, hand):
+    def deal_card(self, frame, hand, face_down=False):
+        if not len(self.deck.cards):
+            self.deck = Deck(count=2)
         card = self.deck.cards.pop()
-        image = self.images[len(self.deck.cards)]
+        if face_down:
+            image = self.face_down_images[random.randint(0, len(self.face_down_images) - 1)]
+        else:
+            image = self.images[str(card)]
         label = Label(frame, image=image)
         label.image = image
         label.pack(side='left')
+        card.label = label
         hand.add(card)
 
     def __str__(self):
-        s = "Dealer Hand (%s): %s\n" % (str(self.dealer_cards.get_total()), str(self.dealer_cards))
-        s += "My Hand (%s): %s\n" % (str(self.my_cards.get_total()), str(self.my_cards))
+        s = "Dealer Hand (%d): %s\n" % (self.dealer_cards.get_total(), str(self.dealer_cards))
+        s += "My Hand (%d): %s\n" % (self.my_cards.get_total(), str(self.my_cards))
         return s
 
 if __name__ == "__main__":
     root = Tk()
     root.resizable(0, 0)
     deck = Deck(count=2)
-    images = [PhotoImage(file=card.get_image()) for card in deck.cards]
-    blackjack = Blackjack(root, deck, images)
+    images = {str(card): PhotoImage(file=card.get_image()) for card in deck.cards}
+    face_down_images = [PhotoImage(file='cards/b1fv.gif'), PhotoImage(file='cards/b2fv.gif')]
+    blackjack = Blackjack(root, deck, images, face_down_images)
     blackjack.add_table()
     blackjack.add_menu()
     blackjack.new_game()
