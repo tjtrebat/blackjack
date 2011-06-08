@@ -30,12 +30,13 @@ class BlackjackHand(Hand):
             return True
         return False
 
+"""
 class Blackjack:
-    def __init__(self, root, deck, images, face_down_images):
+    def __init__(self, root, deck, images, face_down_image):
         self.root = root
         self.deck = deck
         self.images = images
-        self.face_down_images = face_down_images
+        self.face_down_image = face_down_image
 
     def add_menu(self):
         menu = Menu(self.root)
@@ -72,34 +73,43 @@ class Blackjack:
         self.table = Label(self.root, image=background)
         self.table.photo = background
         self.table.pack(side='top', fill='both', expand='yes')
-        
+        self.hit_button = Button(self.table, text='Hit', command=self.hit_me)
+        self.hit_button.pack(side='bottom', pady=10)
+
     def deal_card(self, frame, hand, face_down=False):
         if not len(self.deck.cards):
             self.deck = Deck(count=2)
         card = self.deck.cards.pop()
-        if face_down:
-            image = self.face_down_images[random.randint(0, len(self.face_down_images) - 1)]
-        else:
-            image = self.images[str(card)]
+        image = self.face_down_image if face_down else self.images[str(card)]
         label = Label(frame, image=image)
         label.image = image
         label.pack(side='left')
         card.label = label
         hand.add(card)
 
+    def hit_me(self):
+        self.deal_card(self.my_frame, self.my_cards)
+
     def __str__(self):
         s = "Dealer Hand (%d): %s\n" % (self.dealer_cards.get_total(), str(self.dealer_cards))
         s += "My Hand (%d): %s\n" % (self.my_cards.get_total(), str(self.my_cards))
         return s
+"""
+
+class BlackjackGUI:
+    def __init__(self, deck):
+        self.images = {str(card): PhotoImage(file=card.get_image()) for card in deck.cards}
+        self.face_down_image = PhotoImage(file='cards/b1fv.gif')
 
 if __name__ == "__main__":
     root = Tk()
     root.resizable(0, 0)
     deck = Deck(count=2)
-    images = {str(card): PhotoImage(file=card.get_image()) for card in deck.cards}
-    face_down_images = [PhotoImage(file='cards/b1fv.gif'), PhotoImage(file='cards/b2fv.gif')]
-    blackjack = Blackjack(root, deck, images, face_down_images)
-    blackjack.add_table()
-    blackjack.add_menu()
-    blackjack.new_game()
+    gui = BlackjackGUI(deck)
+    #deck = Deck(count=2)
+
+    #blackjack = Blackjack(root, deck, images, face_down_image)
+    #blackjack.add_table()
+    #blackjack.add_menu()
+    #blackjack.new_game()
     root.mainloop()
