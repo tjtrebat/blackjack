@@ -51,8 +51,7 @@ class BlackjackGUI:
         self.root = root
         self.root.title("Blackjack")
         self.blackjack = blackjack
-        self.table = self.get_table()
-        self.table.pack(side='top', fill='both', expand='yes')
+        self.add_table()
         self.add_frames()
         self.images = {}
         self.labels = {}
@@ -62,34 +61,6 @@ class BlackjackGUI:
         self.images[self.face_down_card] = PhotoImage(file='cards/b1fv.gif')
         self.add_buttons()
         self.add_menu()
-
-    def add_frames(self):
-        self.my_frame = Frame(self.table)
-        self.my_frame.pack(side='bottom')
-        self.dealer_frame = Frame(self.table)
-        self.dealer_frame.pack(side='top')
-
-    def add_buttons(self):
-        self.buttons = Frame(self.table)
-        self.buttons.pack(side='bottom', pady=10)
-        Button(self.buttons, text='Hit', command=self.hit_me).pack()
-
-    def get_table(self):
-        table = Label(self.root)
-        background = PhotoImage(file="blackjack-table-layout.gif")
-        self.root.geometry("%dx%d+0+0" % (background.width(), background.height()))
-        table.config(image=background)
-        table.photo = background
-        return table
-
-    def add_menu(self):
-        menu = Menu(self.root)
-        file_menu = Menu(menu, tearoff=0)
-        file_menu.add_command(label="New Game", command=self.new_game)
-        file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=quit)
-        menu.add_cascade(label="File", menu=file_menu)
-        self.root.config(menu=menu)
 
     def new_game(self):
         self.buttons.destroy()
@@ -119,6 +90,34 @@ class BlackjackGUI:
 
     def hit_me(self):
         pass
+
+    def add_table(self):
+        self.table = Label(self.root)
+        background = PhotoImage(file="blackjack-table-layout.gif")
+        self.root.geometry("%dx%d+0+0" % (background.width(), background.height()))
+        self.table.config(image=background)
+        self.table.photo = background
+        self.table.pack(side='top', fill='both', expand='yes')
+
+    def add_frames(self):
+        self.my_frame = Frame(self.table)
+        self.my_frame.pack(side='bottom')
+        self.dealer_frame = Frame(self.table)
+        self.dealer_frame.pack(side='top')
+
+    def add_buttons(self):
+        self.buttons = Frame(self.table)
+        self.buttons.pack(side='bottom', pady=10)
+        Button(self.buttons, text='Hit', command=self.hit_me).pack()
+
+    def add_menu(self):
+        menu = Menu(self.root)
+        file_menu = Menu(menu, tearoff=0)
+        file_menu.add_command(label="New Game", command=self.new_game)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=quit)
+        menu.add_cascade(label="File", menu=file_menu)
+        self.root.config(menu=menu)
 
 if __name__ == "__main__":
     root = Tk()
