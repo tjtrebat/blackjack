@@ -52,6 +52,7 @@ class BlackjackGUI:
         self.root.title("Blackjack")
         self.blackjack = blackjack
         self.add_table()
+        self.add_buttons()
         self.add_frames()
         self.images = {}
         self.labels = {}
@@ -59,37 +60,45 @@ class BlackjackGUI:
             self.images[card] = PhotoImage(file=card.get_image())
         self.face_down_card = Card(None, None)
         self.images[self.face_down_card] = PhotoImage(file='cards/b1fv.gif')
-        self.add_buttons()
         self.add_menu()
 
     def new_game(self):
-        self.buttons.destroy()
-        self.add_buttons()
-        self.my_frame.destroy()
-        self.dealer_frame.destroy()
-        self.add_frames()
-        if len(self.blackjack.deck) < 15:
+        self.readd_buttons()
+        self.readd_frames()
+        if len(self.blackjack.deck) < 25:
             self.blackjack = Blackjack()
         else:
             self.blackjack.my_hand.cards = []
             self.blackjack.dealer_hand.cards = []
         for i in range(2):
             self.blackjack.deal_card(self.blackjack.my_hand)
-            self.deal(self.my_frame, self.blackjack.my_hand.cards[i])
             self.blackjack.deal_card(self.blackjack.dealer_hand)
-            if i < 1:
-                self.deal(self.dealer_frame, self.blackjack.dealer_hand.cards[i])
-            else:
-                self.deal(self.dealer_frame, self.face_down_card)
+        self.add_my_cards()
+        self.add_dealer_cards()
         print self.blackjack
 
     def deal(self, frame, card):
         self.labels[card] = Label(frame, image=self.images[card])
-        self.labels[card].image = self.images[card]
+        self.labels[card].photo = self.images[card]
         self.labels[card].pack(side='left')
 
     def hit_me(self):
+        self.readd_buttons()
+        self.readd_frames()
+        self.blackjack.deal_card(self.blackjack.my_hand)
+        self.add_my_cards()
+        self.add_dealer_cards()
+
+    def stand(self):
         pass
+
+    def add_my_cards(self):
+        for card in self.blackjack.my_hand.cards:
+            self.deal(self.my_frame, card)
+
+    def add_dealer_cards(self):
+        self.deal(self.dealer_frame, self.blackjack.dealer_hand.cards[0])
+        self.deal(self.dealer_frame, self.face_down_card)
 
     def add_table(self):
         self.table = Label(self.root)
@@ -105,10 +114,22 @@ class BlackjackGUI:
         self.dealer_frame = Frame(self.table)
         self.dealer_frame.pack(side='top')
 
+    def readd_frames(self):
+        self.my_frame.destroy()
+        self.dealer_frame.destroy()
+        self.add_frames()
+
     def add_buttons(self):
         self.buttons = Frame(self.table)
         self.buttons.pack(side='bottom', pady=10)
-        Button(self.buttons, text='Hit', command=self.hit_me).pack()
+        self.hit_button = Button(self.buttons, text='Hit', command=self.hit_me)
+        self.hit_button.pack(side='left')
+        self.stand_button = Button(self.buttons, text='Stand', command=self.stand)
+        self.stand_button.pack(side='right')
+
+    def readd_buttons(self):
+        self.buttons.destroy()
+        self.add_buttons()
 
     def add_menu(self):
         menu = Menu(self.root)
