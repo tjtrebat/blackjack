@@ -1,12 +1,13 @@
 __author__ = 'Tom'
 
+import tkMessageBox
 from Tkinter import *
 from cards import *
 
 class BlackjackHand(Hand):
     def __init__(self):
         super(BlackjackHand, self).__init__()
-        
+
     def get_total(self):
         total = 0
         has_ace = False
@@ -24,7 +25,7 @@ class BlackjackHand(Hand):
                 total -= 10
                 has_ace = False
         return total
-            
+
     def is_bust(self):
         if self.get_total() > 21:
             return True
@@ -83,7 +84,7 @@ class BlackjackGUI:
                 self.deal(self.dealer_frame, self.blackjack.dealer_hand.cards[i])
             else:
                 self.deal(self.dealer_frame, self.face_down_card)
-        print self.blackjack
+        #print self.blackjack
 
     def deal(self, frame, card):
         self.labels[card] = Label(frame, image=self.images[card])
@@ -97,6 +98,10 @@ class BlackjackGUI:
     def hit_me(self):
         self.blackjack.deal_card(self.blackjack.my_hand)
         self.deal(self.my_frame, self.blackjack.my_hand.cards[-1])
+        if self.blackjack.my_hand.is_bust():
+            self.hit_button.config(state=DISABLED)
+            self.stand_button.config(state=DISABLED)
+            tkMessageBox.showinfo(message="Sorry, you lose.")
 
     def stand(self):
         self.hit_button.config(state=DISABLED)
@@ -107,6 +112,10 @@ class BlackjackGUI:
             self.hit_dealer()
         if self.blackjack.dealer_hand.get_total() < 17 and self.blackjack.dealer_hand.get_total() < self.blackjack.my_hand.get_total():
             self.hit_dealer()
+        if not self.blackjack.dealer_hand.is_bust() and self.blackjack.dealer_hand.get_total() > self.blackjack.my_hand.get_total():
+            tkMessageBox.showinfo(message="Sorry, you lose.")
+        else:
+            tkMessageBox.showinfo(message="Congratulations, you win!")
 
     def add_table(self):
         self.table = Canvas(self.root)
