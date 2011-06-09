@@ -68,6 +68,8 @@ class BlackjackGUI:
         self.my_frame.destroy()
         self.dealer_frame.destroy()
         self.add_frames()
+        self.hit_button.config(state=ACTIVE)
+        self.stand_button.config(state=ACTIVE)
         if len(self.blackjack.deck) < 25:
             self.blackjack = Blackjack()
         else:
@@ -88,12 +90,23 @@ class BlackjackGUI:
         self.labels[card].photo = self.images[card]
         self.labels[card].pack(side='left')
 
+    def hit_dealer(self):
+        self.blackjack.deal_card(self.blackjack.dealer_hand)
+        self.deal(self.dealer_frame, self.blackjack.dealer_hand.cards[-1])
+
     def hit_me(self):
         self.blackjack.deal_card(self.blackjack.my_hand)
         self.deal(self.my_frame, self.blackjack.my_hand.cards[-1])
 
     def stand(self):
-        pass
+        self.hit_button.config(state=DISABLED)
+        self.stand_button.config(state=DISABLED)
+        self.labels[self.face_down_card].forget()
+        self.deal(self.dealer_frame, self.blackjack.dealer_hand.cards[-1])
+        while self.blackjack.dealer_hand.get_total() < 16:
+            self.hit_dealer()
+        if self.blackjack.dealer_hand.get_total() < 17 and self.blackjack.dealer_hand.get_total() < self.blackjack.my_hand.get_total():
+            self.hit_dealer()
 
     def add_table(self):
         self.table = Canvas(self.root)
